@@ -1,9 +1,9 @@
 package com.gmail.xlinaris;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -19,9 +19,12 @@ public class LadybugOnFlowers extends ApplicationAdapter {
 
     @Override
     public void render() {
+
+        int width = Gdx.graphics.getWidth();
+        int height =Gdx.graphics.getHeight();
         ScreenUtils.clear(Color.valueOf("#3a90e7"));
         batch.begin();
-        batch.draw(img, 0, 0, 1024, 1024);
+        batch.draw(img, 0, 0, width, height);
         batch.end();
     }
 
