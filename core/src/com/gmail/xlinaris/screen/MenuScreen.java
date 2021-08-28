@@ -6,9 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.gmail.xlinaris.base.BaseScreen;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 public class MenuScreen extends BaseScreen {
     private Texture imgLadybugs;
     private Texture flower;
@@ -20,7 +17,7 @@ public class MenuScreen extends BaseScreen {
     private Vector2 targetAngelVector;
     private static final int wingbeatCount = 5;
     int wingbeatSpeed = 0;
-    private volatile boolean wingbeatFlag = true;
+    private boolean wingbeatFlag = true;
 
     // Implementation of Screen interface methods
     @Override
@@ -56,7 +53,7 @@ public class MenuScreen extends BaseScreen {
     private void flyToTouchFlower(Vector2 positionLadybug1, Vector2 touch) {
 
         targetAngelVector = positionLadybug1.cpy().sub(touch.cpy());
-        float targetAngel = targetAngelVector.nor().angleDeg();
+        float targetAngel = targetAngelVector.angleDeg();
 
         TextureRegion x = wingbeatFlag ? imgLadybug1 : imgLadybug2;
         if (wingbeatSpeed < wingbeatCount) {
@@ -86,22 +83,5 @@ public class MenuScreen extends BaseScreen {
         flyToTouchFlower(positionLadybug1, touch);
         return super.touchUp(screenX, screenY, pointer, button);
     }
-
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return super.touchDragged(screenX, screenY, pointer);
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return super.mouseMoved(screenX, screenY);
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return super.scrolled(amountX, amountY);
-    }
-
 
 }
