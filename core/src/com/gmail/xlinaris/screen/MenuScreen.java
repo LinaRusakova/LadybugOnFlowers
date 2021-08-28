@@ -15,6 +15,8 @@ public class MenuScreen extends BaseScreen {
     private Vector2 touch;
     private Vector2 velocity;
     private Vector2 targetAngelVector;
+    private float ladyBugCurrentAngel = 0;
+    private float ladyBugTargetAngel = 0;
     private static final int wingbeatCount = 5;
     int wingbeatSpeed = 0;
     private boolean wingbeatFlag = true;
@@ -40,7 +42,7 @@ public class MenuScreen extends BaseScreen {
         batch.begin();
         batch.draw(flower, touch.x - 40f, touch.y - 40f, 80, 80);
         batch.end();
-        flyToTouchFlower(positionLadybug1, touch);
+        flyToTouchFlower(positionLadybug1);
     }
 
     @Override
@@ -50,10 +52,10 @@ public class MenuScreen extends BaseScreen {
         flower.dispose();
     }
 
-    private void flyToTouchFlower(Vector2 positionLadybug1, Vector2 touch) {
-
+    private void flyToTouchFlower(Vector2 positionLadybug1) {
         targetAngelVector = positionLadybug1.cpy().sub(touch.cpy());
-        float targetAngel = targetAngelVector.angleDeg();
+        targetAngelVector.crs(positionLadybug1);
+        ladyBugTargetAngel = targetAngelVector.angleDeg();
 
         TextureRegion x = wingbeatFlag ? imgLadybug1 : imgLadybug2;
         if (wingbeatSpeed < wingbeatCount) {
@@ -62,25 +64,44 @@ public class MenuScreen extends BaseScreen {
             wingbeatFlag = !wingbeatFlag;
             wingbeatSpeed = 0;
         }
-        if (touch.dst(positionLadybug1) <= 1f) { // if distance less 1 than ladybug does not flap its wings
+
+        if (touch.dst(positionLadybug1) <= 1f) {
             wingbeatFlag = true;
         } else {
-            positionLadybug1.add(touch.cpy().sub(positionLadybug1).nor().scl(velocity));  //
+            if (rotateTexture()) {
+                positionLadybug1.add(touch.cpy().sub(positionLadybug1).nor().scl(velocity));
+            }
         }
-
+        System.out.println(ladyBugCurrentAngel);
         batch.begin();
-        batch.draw(x, positionLadybug1.x - 25f, positionLadybug1.y - 25f, 25f, 25f, 50f, 50f, 1f, 1f, targetAngel, false);
+        batch.draw(x, positionLadybug1.x - 25f, positionLadybug1.y - 25f, 25f, 25f, 50f, 50f, 1f, 1f, ladyBugCurrentAngel, false);
         batch.end();
-
     }
 
+    private boolean rotateTexture() {
+        boolean result = false;
+        ladyBugTargetAngel = ladyBugTargetAngel >= 0 ? ladyBugTargetAngel : 360 - ladyBugTargetAngel;
+        ladyBugCurrentAngel = ladyBugCurrentAngel >= 0 ? ladyBugCurrentAngel : 360 - ladyBugCurrentAngel;
+        if (ladyBugCurrentAngel < ladyBugTargetAngel) {
+            ladyBugCurrentAngel++;
+            if (ladyBugTargetAngel - ladyBugCurrentAngel < 1f) {
+                result = true;
+            }
+        } else if (ladyBugCurrentAngel > ladyBugTargetAngel) {
+            ladyBugCurrentAngel--;
+            if (ladyBugCurrentAngel - ladyBugTargetAngel < 1f) {
+                result = true;
+            }
+
+        }
+
+        return result;
+    }
 
     // Implementation of InputProcessor  interface methods
-
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        touch.set(screenX, Gdx.graphics.getHeight() - screenY); // numbers 40, 40 - it is half of width and height texture on screen
-        flyToTouchFlower(positionLadybug1, touch);
+        touch.set(screenX, Gdx.graphics.getHeight() - screenY);
         return super.touchUp(screenX, screenY, pointer, button);
     }
 
