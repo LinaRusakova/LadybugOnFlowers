@@ -1,8 +1,10 @@
 package com.gmail.xlinaris.base;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.math.Rect;
 
 public class Sprite extends Rect {
@@ -10,6 +12,7 @@ public class Sprite extends Rect {
     protected float angle;
     protected float scale = 1;
     protected TextureRegion[] regions;
+    protected TextureAtlas.AtlasRegion[] atlasRegions;
     protected int frame;
 
     public Sprite(TextureRegion region) {
@@ -17,9 +20,20 @@ public class Sprite extends Rect {
         regions[0] = region;
     }
 
+    public Sprite(TextureAtlas atlas) {
+        atlasRegions = atlas.getRegions().items;
+
+    }
+
     public void setHeightProportion(float height) {
         setHeight(height);
         float aspect = regions[frame].getRegionWidth() / (float) regions[frame].getRegionHeight();
+        setWidth(height * aspect);
+    }
+
+    public void setHeightProportion(float height, TextureAtlas.AtlasRegion[] atlasRegions) {
+        setHeight(height);
+        float aspect = atlasRegions[frame].getRegionWidth() / (float) atlasRegions[frame].getRegionHeight();
         setWidth(height * aspect);
     }
 

@@ -1,0 +1,33 @@
+flowerslanding.png
+size: 553, 1932
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+flowerchamomilebad
+  rotate:true
+  xy: 0, 0
+  size: 553, 483
+  orig: 553, 483
+  offset: 0, 0
+  index: -1
+flowerchamomilebad1
+  rotate: false
+  xy: 0, 483
+  size: 553, 483
+  orig: 553, 483
+  offset: 0, 0
+  index: -1
+flowerchamomilegood
+  rotate: false
+  xy: 0, 966
+  size: 553, 483
+  orig: 553, 483
+  offset: 0, 0
+  index: -1
+flowerchamomilegood1
+  rotate: false
+  xy: 0, 1449
+  size: 553, 483
+  orig: 553, 483
+  offset: 0, 0
+  index: -1
