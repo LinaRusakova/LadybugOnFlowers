@@ -1,49 +1,79 @@
 package com.gmail.xlinaris.screen;
 
+import com.badlogic.gdx.Audio;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.base.BaseScreen;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.sprite.Background;
 import com.gmail.xlinaris.sprite.Flower;
 import com.gmail.xlinaris.sprite.Ladybug;
-import com.gmail.xlinaris.sprite.Star;
+import com.gmail.xlinaris.sprite.LandingFlower;
+
 
 public class GameScreen extends BaseScreen {
-    private static final int STAR_COUNT = 64;
+    private static final int DOCKS_COUNT = 12;
 
     private TextureAtlas atlas;
 
     private Texture backgroundTexture;
     private Background background;
-    private Star[] stars;
-
+    private LandingFlower[] landingFlowers;
     private Texture imgLadybugs;
     private Texture flower;
     private Flower flowerObject;
     private Ladybug ladybugObject;
-    private Vector2 positionLadybug1;
+    private Sound soundwingflapping;
+    private Music audiotrack1;
+
+    public GameScreen() {
+    }
 
     @Override
     public void show() {
+        soundwingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
+        soundwingflapping.setVolume(0,4f);
+
+        audiotrack1= Gdx.audio.newMusic(Gdx.files.internal("audio/Thats-Fine-Instrumental-Version-Henrik-Nagy.mp3"));
+        audiotrack1.setVolume(.2f);
+        audiotrack1.setOnCompletionListener(new Music.OnCompletionListener() {
+            @Override
+            public void onCompletion(Music music) {
+                audiotrack1.play();
+            }
+        });
+        audiotrack1.play();
         super.show();
 
-        atlas = new TextureAtlas("textures/mainAtlas.tpack");
         backgroundTexture = new Texture("textures/background1024x1024.png");
         background = new Background(backgroundTexture);
+
+        atlas = new TextureAtlas("textures/flowers.atlas");
+        final Array<TextureAtlas.AtlasRegion> textures = atlas.getRegions();
+
+
         flower = new Texture("textures/flowerchamomile.png");
         flowerObject = new Flower(flower);
 
         imgLadybugs = new Texture("textures/ladybug.png");
-        ladybugObject=new Ladybug(imgLadybugs);
+        ladybugObject = new Ladybug(imgLadybugs);
+        ladybugObject.setAngle(ladybugObject.pos.angleDeg());
 
-        positionLadybug1 = new Vector2(0, 0);
-        stars = new Star[STAR_COUNT];
-        for (int i = 0; i < stars.length; i++) {
-            stars[i] = new Star(atlas);
+        landingFlowers = new LandingFlower[DOCKS_COUNT];
+        for (int i = 0; i < landingFlowers.length; i++) {
+            int texturVariant = MathUtils.random(1, 10) > 7 ? 2 : 1;
+            landingFlowers[i] = new LandingFlower(textures.get(texturVariant));
+            landingFlowers[i].setAngle(180f);
         }
     }
+
 
     @Override
     public void render(float delta) {
@@ -58,8 +88,8 @@ public class GameScreen extends BaseScreen {
         flowerObject.resize(worldBounds);
         ladybugObject.resize(worldBounds);
         background.resize(worldBounds);
-        for (Star star : stars) {
-            star.resize(worldBounds);
+        for (LandingFlower landingFlower : landingFlowers) {
+            landingFlower.resize(worldBounds);
         }
     }
 
@@ -70,38 +100,67 @@ public class GameScreen extends BaseScreen {
         flower.dispose();
         backgroundTexture.dispose();
         atlas.dispose();
+        soundwingflapping.dispose();
+        audiotrack1.dispose();
+
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        flowerObject.touchDown(touch, pointer,button);
-        System.out.println("x " + touch.x + " - y " + touch.y);
+
+        soundwingflapping.loop();
+        ladybugObject.moveHandle(touch, true, false, 0);
         return super.touchDown(touch, pointer, button);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
+        soundwingflapping.stop();
+        ladybugObject.moveHandle(touch, false, false, 0);
         return super.touchUp(touch, pointer, button);
     }
 
+    @Override
+    public boolean touchDragged(Vector2 touch, int pointer) {
+
+        ladybugObject.moveHandle(touch, true, false, 0);
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        soundwingflapping.loop();
+        ladybugObject.moveHandle(null, false, true, keycode);
+        return super.keyDown(keycode);
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        soundwingflapping.stop();
+        ladybugObject.moveHandle(null, false, false, keycode);
+        return super.keyUp(keycode);
+    }
+
     private void update(float delta) {
-        ladybugObject.moveTo(flowerObject.pos);
-        System.out.println("ladybug x= " + ladybugObject.pos.x+ " y="+ ladybugObject.pos.y);
-        System.out.println(ladybugObject.getAngle());
-        for (Star star : stars) {
-            star.update(delta);
+        ladybugObject.update(delta);
+        for (LandingFlower landingFlower : landingFlowers) {
+            landingFlower.update(delta);
         }
     }
 
     private void draw() {
         batch.begin();
-        batch.setColor(1f, 1f, 1f, .5f);
+        batch.setColor(1f, 1f, 1f, .1f);
         background.draw(batch);
         batch.setColor(1f, 1f, 1f, 1f);
-        for (Star star : stars) {
-            star.draw(batch);
+
+        for (LandingFlower landingFlower : landingFlowers) {
+            landingFlower.draw(batch);
         }
+        batch.setColor(1f, 1f, 1f, .01f);
         flowerObject.draw(batch);
+        batch.setColor(1f, 1f, 1f, 1f);
+
         ladybugObject.draw(batch);
         batch.end();
     }
