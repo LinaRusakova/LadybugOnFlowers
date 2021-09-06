@@ -1,6 +1,9 @@
 package com.gmail.xlinaris.sprite;
 
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -25,12 +28,14 @@ public class Ladybug extends Sprite {
     private static final int wingbeatCount = 5;
 
 
+
     public Ladybug(Texture texture) {
         super((new TextureRegion(texture)));
         this.regions[0] = new TextureRegion(texture, 0, 0, 430, 430);
         this.regions[1] = new TextureRegion(texture, 0, 431, 430, 430);
         tmpCurrentPosition = new Vector2();
         tmpDestinationPosition = new Vector2();
+
 
     }
 

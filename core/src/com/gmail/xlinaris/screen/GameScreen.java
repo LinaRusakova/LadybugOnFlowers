@@ -1,5 +1,10 @@
 package com.gmail.xlinaris.screen;
 
+import com.badlogic.gdx.Audio;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
@@ -25,9 +30,26 @@ public class GameScreen extends BaseScreen {
     private Texture flower;
     private Flower flowerObject;
     private Ladybug ladybugObject;
+    private Sound soundwingflapping;
+    private Music audiotrack1;
+
+    public GameScreen() {
+    }
 
     @Override
     public void show() {
+        soundwingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
+        soundwingflapping.setVolume(0,4f);
+
+        audiotrack1= Gdx.audio.newMusic(Gdx.files.internal("audio/Thats-Fine-Instrumental-Version-Henrik-Nagy.mp3"));
+        audiotrack1.setVolume(.2f);
+        audiotrack1.setOnCompletionListener(new Music.OnCompletionListener() {
+            @Override
+            public void onCompletion(Music music) {
+                audiotrack1.play();
+            }
+        });
+        audiotrack1.play();
         super.show();
 
         backgroundTexture = new Texture("textures/background1024x1024.png");
@@ -78,18 +100,22 @@ public class GameScreen extends BaseScreen {
         flower.dispose();
         backgroundTexture.dispose();
         atlas.dispose();
+        soundwingflapping.dispose();
+        audiotrack1.dispose();
+
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
 
+        soundwingflapping.loop();
         ladybugObject.moveHandle(touch, true, false, 0);
         return super.touchDown(touch, pointer, button);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
-
+        soundwingflapping.stop();
         ladybugObject.moveHandle(touch, false, false, 0);
         return super.touchUp(touch, pointer, button);
     }
@@ -103,14 +129,14 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-
+        soundwingflapping.loop();
         ladybugObject.moveHandle(null, false, true, keycode);
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean keyUp(int keycode) {
-
+        soundwingflapping.stop();
         ladybugObject.moveHandle(null, false, false, keycode);
         return super.keyUp(keycode);
     }
