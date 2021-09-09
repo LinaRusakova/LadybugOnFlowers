@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.math.Rect;
+import com.gmail.xlinaris.utils.Regions;
 
 public class Sprite extends Rect {
 
@@ -14,7 +15,10 @@ public class Sprite extends Rect {
     protected TextureRegion[] regions;
     protected TextureAtlas.AtlasRegion[] atlasRegions;
     protected int frame;
+    private boolean destroyed;
 
+    public Sprite() {
+    }
     public Sprite(TextureRegion region) {
         regions = new TextureRegion[2];
         regions[0] = region;
@@ -24,7 +28,9 @@ public class Sprite extends Rect {
         atlasRegions = atlas.getRegions().items;
 
     }
-
+    public Sprite(TextureRegion region, int rows, int cols, int frames) {
+        this.regions = Regions.split(region, rows, cols, frames);
+    }
     public void setHeightProportion(float height) {
         setHeight(height);
         float aspect = regions[frame].getRegionWidth() / (float) regions[frame].getRegionHeight();
@@ -67,6 +73,18 @@ public class Sprite extends Rect {
 
     public void setScale(float scale) {
         this.scale = scale;
+    }
+
+    public void destroy() {
+        destroyed = true;
+    }
+
+    public void flushDestroy() {
+        destroyed = false;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 
     public void draw(SpriteBatch batch) {

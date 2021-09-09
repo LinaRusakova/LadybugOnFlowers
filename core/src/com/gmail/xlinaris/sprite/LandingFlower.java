@@ -11,6 +11,7 @@ public class LandingFlower extends Sprite {
     private final Vector2 v;
     private Rect worldBounds;
 
+
     public LandingFlower(TextureAtlas.AtlasRegion texture) {
         super(texture);
         float vx = MathUtils.random(-0.08f, 0.08f);

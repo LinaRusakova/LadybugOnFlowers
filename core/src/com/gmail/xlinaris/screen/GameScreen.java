@@ -1,10 +1,8 @@
 package com.gmail.xlinaris.screen;
 
-import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
@@ -12,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.base.BaseScreen;
 import com.gmail.xlinaris.math.Rect;
+import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.sprite.Background;
 import com.gmail.xlinaris.sprite.Flower;
 import com.gmail.xlinaris.sprite.Ladybug;
@@ -21,7 +20,8 @@ import com.gmail.xlinaris.sprite.LandingFlower;
 public class GameScreen extends BaseScreen {
     private static final int DOCKS_COUNT = 12;
 
-    private TextureAtlas atlas;
+    private TextureAtlas atlasFlowersLanding;
+    private TextureAtlas atlasLadybug;
 
     private Texture backgroundTexture;
     private Background background;
@@ -30,8 +30,12 @@ public class GameScreen extends BaseScreen {
     private Texture flower;
     private Flower flowerObject;
     private Ladybug ladybugObject;
+
     private Sound soundwingflapping;
     private Music audiotrack1;
+
+    private BulletPool bulletPool;
+    private TextureAtlas atlasbulletcrazyball;
 
     public GameScreen() {
     }
@@ -55,16 +59,19 @@ public class GameScreen extends BaseScreen {
         backgroundTexture = new Texture("textures/background1024x1024.png");
         background = new Background(backgroundTexture);
 
-        atlas = new TextureAtlas("textures/flowers.atlas");
-        final Array<TextureAtlas.AtlasRegion> textures = atlas.getRegions();
+        atlasFlowersLanding = new TextureAtlas("textures/flowers.atlas");
+        final Array<TextureAtlas.AtlasRegion> textures = atlasFlowersLanding.getRegions();
 
 
         flower = new Texture("textures/flowerchamomile.png");
         flowerObject = new Flower(flower);
 
+        atlasbulletcrazyball = new TextureAtlas("textures/bulletcrazyball.atlas");
+
+
         imgLadybugs = new Texture("textures/ladybug.png");
-        ladybugObject = new Ladybug(imgLadybugs);
-        ladybugObject.setAngle(ladybugObject.pos.angleDeg());
+
+       // ladybugObject.setAngle(ladybugObject.pos.angleDeg());
 
         landingFlowers = new LandingFlower[DOCKS_COUNT];
         for (int i = 0; i < landingFlowers.length; i++) {
@@ -72,6 +79,8 @@ public class GameScreen extends BaseScreen {
             landingFlowers[i] = new LandingFlower(textures.get(texturVariant));
             landingFlowers[i].setAngle(180f);
         }
+        bulletPool = new BulletPool();
+        ladybugObject = new Ladybug(imgLadybugs, bulletPool,   atlasbulletcrazyball);
     }
 
 
@@ -79,6 +88,7 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        freeAllDestroyed();
         draw();
     }
 
@@ -99,10 +109,15 @@ public class GameScreen extends BaseScreen {
         imgLadybugs.dispose();
         flower.dispose();
         backgroundTexture.dispose();
-        atlas.dispose();
+        atlasFlowersLanding.dispose();
+        atlasbulletcrazyball.dispose();
         soundwingflapping.dispose();
         audiotrack1.dispose();
 
+    }
+
+    private void freeAllDestroyed() {
+        bulletPool.freeAllDestroyedActiveSprites();
     }
 
     @Override
@@ -129,15 +144,19 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
+
         soundwingflapping.loop();
-        ladybugObject.moveHandle(null, false, true, keycode);
+        ladybugObject.moveHandle(null, false, true , keycode);
+
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean keyUp(int keycode) {
+
         soundwingflapping.stop();
         ladybugObject.moveHandle(null, false, false, keycode);
+
         return super.keyUp(keycode);
     }
 
@@ -146,7 +165,9 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.update(delta);
         }
+        bulletPool.updateActiveSprites(delta);
     }
+
 
     private void draw() {
         batch.begin();
@@ -162,6 +183,7 @@ public class GameScreen extends BaseScreen {
         batch.setColor(1f, 1f, 1f, 1f);
 
         ladybugObject.draw(batch);
+        bulletPool.drawActiveSprites(batch);
         batch.end();
     }
 }

@@ -1,17 +1,18 @@
 package com.gmail.xlinaris.sprite;
 
-import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
-import com.gmail.xlinaris.screen.GameScreen;
+import com.gmail.xlinaris.pool.BulletPool;
+import com.gmail.xlinaris.utils.Regions;
 
 public class Ladybug extends Sprite {
+
     private Rect worldBounds;
 
 
@@ -27,17 +28,29 @@ public class Ladybug extends Sprite {
     private boolean wingbeatFlag = true;
     private static final int wingbeatCount = 5;
 
+    private final BulletPool bulletPool;
+    private final TextureRegion bulletRegion;
+    private final Vector2 bulletV;
+    private final Vector2 bulletPos;
+    private final float bulletHeight;
+    private final int bulletDamage;
 
 
-    public Ladybug(Texture texture) {
-        super((new TextureRegion(texture)));
-        this.regions[0] = new TextureRegion(texture, 0, 0, 430, 430);
-        this.regions[1] = new TextureRegion(texture, 0, 431, 430, 430);
+
+    public Ladybug(Texture texture, BulletPool bulletPool, TextureAtlas atlas) {
+
+        this.regions = Regions.split(new TextureRegion(texture), 2, 1, 2);
+
+        this.bulletPool = bulletPool;
+        bulletRegion = atlas.findRegion("bulletcrazyball1-2");
+        bulletV = new Vector2(0, 0.5f);
+        bulletPos = new Vector2();
+        bulletHeight = 0.01f;
+        bulletDamage = 1;
         tmpCurrentPosition = new Vector2();
         tmpDestinationPosition = new Vector2();
-
-
     }
+
 
     @Override
     public void resize(Rect worldBounds) {
@@ -88,9 +101,12 @@ public class Ladybug extends Sprite {
 
                 case Input.Keys.UP:
                     System.out.println("UP");
+
                     if ((tmpCurrentPosition.y += velocity.y) <= worldBounds.getTop() - halfWidth) {
                         pos.y += velocity.y;
                     }
+
+                    shoot();
                     break;
 
                 case Input.Keys.DOWN:
@@ -98,6 +114,7 @@ public class Ladybug extends Sprite {
                     if ((tmpCurrentPosition.y -= velocity.y) >= worldBounds.getBottom() + halfWidth) {
                         pos.y -= velocity.y;
                     }
+
                     break;
 
                 case Input.Keys.LEFT:
@@ -105,14 +122,17 @@ public class Ladybug extends Sprite {
                     if ((tmpCurrentPosition.x -= velocity.x) >= worldBounds.getLeft() + halfWidth) {
                         pos.x -= velocity.x;
                     }
+
                     break;
                 case Input.Keys.RIGHT:
                     System.out.println("RIGHT");
                     if ((tmpCurrentPosition.x += velocity.x) <= worldBounds.getRight() - halfWidth) {
                         pos.x += velocity.x;
                     }
+
                     break;
             }
+
 
         } else if (keycode != 0 && !isKeyPress) {
 
@@ -138,6 +158,12 @@ public class Ladybug extends Sprite {
             wingbeatFlag = !wingbeatFlag;
             wingbeatSpeed = 0;
         }
+    }
+
+    private void shoot() {
+        Bullet bullet = bulletPool.obtain();
+        bulletPos.set(pos.x, pos.y + getHalfHeight());
+        bullet.set(this, bulletRegion, bulletPos, bulletV, 0.01f, worldBounds, bulletDamage);
     }
 }
 

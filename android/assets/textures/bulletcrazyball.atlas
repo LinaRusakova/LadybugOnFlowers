@@ -1,0 +1,33 @@
+bulletcrazyball.png
+size: 1024, 256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bulletcrazyball1-2
+  rotate: false
+  xy: 0, 0
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+bulletcrazyball1-3
+  rotate: false
+  xy: 256, 0
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+bulletcrazyball1-4
+  rotate: false
+  xy: 512, 0
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+bulletcrazyball1
+  rotate: false
+  xy: 768, 0
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
