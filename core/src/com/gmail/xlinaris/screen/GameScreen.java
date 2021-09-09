@@ -31,7 +31,8 @@ public class GameScreen extends BaseScreen {
     private Flower flowerObject;
     private Ladybug ladybugObject;
 
-    private Sound soundwingflapping;
+    private Sound soundWingflapping;
+    private Sound soundShot;
     private Music audiotrack1;
 
     private BulletPool bulletPool;
@@ -42,10 +43,13 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void show() {
-        soundwingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
-        soundwingflapping.setVolume(0,4f);
+        soundWingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
+        soundWingflapping.setVolume(0, 4f);
 
-        audiotrack1= Gdx.audio.newMusic(Gdx.files.internal("audio/Thats-Fine-Instrumental-Version-Henrik-Nagy.mp3"));
+        soundShot = Gdx.audio.newSound(Gdx.files.internal("sounds/oneshot.mp3"));
+
+        soundShot.setVolume(0, .02f);
+        audiotrack1 = Gdx.audio.newMusic(Gdx.files.internal("audio/Thats-Fine-Instrumental-Version-Henrik-Nagy.mp3"));
         audiotrack1.setVolume(.2f);
         audiotrack1.setOnCompletionListener(new Music.OnCompletionListener() {
             @Override
@@ -71,7 +75,7 @@ public class GameScreen extends BaseScreen {
 
         imgLadybugs = new Texture("textures/ladybug.png");
 
-       // ladybugObject.setAngle(ladybugObject.pos.angleDeg());
+        // ladybugObject.setAngle(ladybugObject.pos.angleDeg());
 
         landingFlowers = new LandingFlower[DOCKS_COUNT];
         for (int i = 0; i < landingFlowers.length; i++) {
@@ -80,7 +84,7 @@ public class GameScreen extends BaseScreen {
             landingFlowers[i].setAngle(180f);
         }
         bulletPool = new BulletPool();
-        ladybugObject = new Ladybug(imgLadybugs, bulletPool,   atlasbulletcrazyball);
+        ladybugObject = new Ladybug(imgLadybugs, bulletPool, atlasbulletcrazyball, soundShot, soundWingflapping);
     }
 
 
@@ -111,8 +115,9 @@ public class GameScreen extends BaseScreen {
         backgroundTexture.dispose();
         atlasFlowersLanding.dispose();
         atlasbulletcrazyball.dispose();
-        soundwingflapping.dispose();
+        soundWingflapping.dispose();
         audiotrack1.dispose();
+        soundShot.dispose();
 
     }
 
@@ -123,14 +128,15 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
 
-        soundwingflapping.loop();
+        soundWingflapping.loop();
         ladybugObject.moveHandle(touch, true, false, 0);
         return super.touchDown(touch, pointer, button);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
-        soundwingflapping.stop();
+
+        soundWingflapping.stop();
         ladybugObject.moveHandle(touch, false, false, 0);
         return super.touchUp(touch, pointer, button);
     }
@@ -144,17 +150,17 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-
-        soundwingflapping.loop();
-        ladybugObject.moveHandle(null, false, true , keycode);
+        ladybugObject.keyDown(keycode);
+       // soundWingflapping.loop();
+        ladybugObject.moveHandle(null, false, true, keycode);
 
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean keyUp(int keycode) {
-
-        soundwingflapping.stop();
+        ladybugObject.keyUp(keycode);
+        //soundWingflapping.stop();
         ladybugObject.moveHandle(null, false, false, keycode);
 
         return super.keyUp(keycode);
@@ -186,4 +192,6 @@ public class GameScreen extends BaseScreen {
         bulletPool.drawActiveSprites(batch);
         batch.end();
     }
+
+
 }

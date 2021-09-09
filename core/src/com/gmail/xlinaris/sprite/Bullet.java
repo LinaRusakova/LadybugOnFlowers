@@ -1,5 +1,6 @@
 package com.gmail.xlinaris.sprite;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.gmail.xlinaris.base.Sprite;
@@ -37,6 +38,7 @@ public class Bullet extends Sprite {
 
     @Override
     public void update(float delta) {
+
         pos.mulAdd(v, delta);
         if (isOutside(worldBounds)) {
             destroy();
