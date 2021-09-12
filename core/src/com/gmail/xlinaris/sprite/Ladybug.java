@@ -1,11 +1,12 @@
 package com.gmail.xlinaris.sprite;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
@@ -34,10 +35,18 @@ public class Ladybug extends Sprite {
     private final Vector2 bulletPos;
     private final float bulletHeight;
     private final int bulletDamage;
+    private boolean pressedLeft;
+    private boolean pressedRight;
+    private final Vector2 v0 = new Vector2(0.5f, 0);
+    private final Vector2 v = new Vector2();
+    private final Sound soundShot;
+    private Sound soundWingflapping;
+    private final int SPEEDSHOT = 120;
+    private int shot = 0;
 
-
-
-    public Ladybug(Texture texture, BulletPool bulletPool, TextureAtlas atlas) {
+    public Ladybug(Texture texture, BulletPool bulletPool, TextureAtlas atlas, Sound soundShot, Sound soundWingflapping) {
+        this.soundShot = soundShot;
+        this.soundWingflapping = soundWingflapping;
 
         this.regions = Regions.split(new TextureRegion(texture), 2, 1, 2);
 
@@ -68,8 +77,32 @@ public class Ladybug extends Sprite {
         this.keycode = keycode;
     }
 
+    Timer.Task shootTimer = new Timer().scheduleTask(new Timer.Task() {
+        @Override
+        public void run() {
+            shoot();
+
+        }
+    }, 0f, .1f);
+    Timer.Task soundshotTimer = new Timer().scheduleTask(new Timer.Task() {
+        @Override
+        public void run() {
+            soundShot.play(.1f);
+        }
+    }, 0f,.1f );
+
     public void update(float delta) {
         moveTo();
+        pos.mulAdd(v, delta);
+
+        if (getRight() > worldBounds.getRight()) {
+            setRight(worldBounds.getRight());
+            stop();
+        }
+        if (getLeft() < worldBounds.getLeft()) {
+            setLeft(worldBounds.getLeft());
+            stop();
+        }
         checkAndHandleBounds();
     }
 
@@ -102,11 +135,10 @@ public class Ladybug extends Sprite {
                 case Input.Keys.UP:
                     System.out.println("UP");
 
-                    if ((tmpCurrentPosition.y += velocity.y) <= worldBounds.getTop() - halfWidth) {
-                        pos.y += velocity.y;
-                    }
-
-                    shoot();
+//                    if ((tmpCurrentPosition.y += velocity.y) <= worldBounds.getTop() - halfWidth) {
+//                        pos.y += velocity.y;
+//                    }
+//                    shoot();
                     break;
 
                 case Input.Keys.DOWN:
@@ -114,23 +146,22 @@ public class Ladybug extends Sprite {
                     if ((tmpCurrentPosition.y -= velocity.y) >= worldBounds.getBottom() + halfWidth) {
                         pos.y -= velocity.y;
                     }
-
                     break;
 
-                case Input.Keys.LEFT:
-                    System.out.println("LEFT");
-                    if ((tmpCurrentPosition.x -= velocity.x) >= worldBounds.getLeft() + halfWidth) {
-                        pos.x -= velocity.x;
-                    }
-
-                    break;
-                case Input.Keys.RIGHT:
-                    System.out.println("RIGHT");
-                    if ((tmpCurrentPosition.x += velocity.x) <= worldBounds.getRight() - halfWidth) {
-                        pos.x += velocity.x;
-                    }
-
-                    break;
+//                case Input.Keys.LEFT:
+//                    System.out.println("LEFT");
+//                    if ((tmpCurrentPosition.x -= velocity.x) >= worldBounds.getLeft() + halfWidth) {
+//                        pos.x -= velocity.x;
+//                    }
+//
+//                    break;
+//                case Input.Keys.RIGHT:
+//                    System.out.println("RIGHT");
+//                    if ((tmpCurrentPosition.x += velocity.x) <= worldBounds.getRight() - halfWidth) {
+//                        pos.x += velocity.x;
+//                    }
+//
+//                    break;
             }
 
 
@@ -139,6 +170,8 @@ public class Ladybug extends Sprite {
             tmpDestinationPosition.set(pos);
             frame = 0;
             keycode = 0;
+            soundWingflapping.stop();
+//            soundShot.stop();
 
         } else if (tmpDestinationPosition != null && isTouch) {
 
@@ -160,10 +193,75 @@ public class Ladybug extends Sprite {
         }
     }
 
+
+    public boolean keyDown(int keycode) {
+        switch (keycode) {
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                pressedLeft = true;
+                soundWingflapping.loop();
+                moveLeft();
+
+                break;
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                pressedRight = true;
+                soundWingflapping.loop();
+                moveRight();
+                break;
+            case Input.Keys.UP:
+//                shoot();
+                break;
+            case Input.Keys.DOWN:
+                soundWingflapping.loop();
+                break;
+        }
+        return false;
+    }
+
+    public boolean keyUp(int keycode) {
+        switch (keycode) {
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                pressedLeft = false;
+                if (pressedRight) {
+                    moveRight();
+                } else {
+                    stop();
+                }
+                break;
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                pressedRight = false;
+                if (pressedLeft) {
+                    moveLeft();
+                } else {
+                    stop();
+                }
+                break;
+        }
+        return false;
+    }
+
+    private void moveRight() {
+        v.set(v0);
+    }
+
+    private void moveLeft() {
+        v.set(v0).rotateDeg(180);
+    }
+
+    private void stop() {
+        v.setZero();
+    }
+
     private void shoot() {
+
         Bullet bullet = bulletPool.obtain();
         bulletPos.set(pos.x, pos.y + getHalfHeight());
-        bullet.set(this, bulletRegion, bulletPos, bulletV, 0.01f, worldBounds, bulletDamage);
+        bullet.set(this, bulletRegion, bulletPos, bulletV, 0.03f, worldBounds, bulletDamage);
+
     }
+
 }
 
