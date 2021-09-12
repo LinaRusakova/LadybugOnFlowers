@@ -11,15 +11,18 @@ import com.badlogic.gdx.utils.Array;
 import com.gmail.xlinaris.base.BaseScreen;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
+import com.gmail.xlinaris.pool.EnemyPool;
 import com.gmail.xlinaris.sprite.Background;
 import com.gmail.xlinaris.sprite.Flower;
 import com.gmail.xlinaris.sprite.Ladybug;
 import com.gmail.xlinaris.sprite.LandingFlower;
+import com.gmail.xlinaris.utils.EnemyEmitter;
 
 
 public class GameScreen extends BaseScreen {
     private static final int DOCKS_COUNT = 12;
-
+    private TextureAtlas atlas;
+    private TextureAtlas atlasbulletcrazyball;
     private TextureAtlas atlasFlowersLanding;
     private TextureAtlas atlasLadybug;
 
@@ -36,15 +39,23 @@ public class GameScreen extends BaseScreen {
     private Music audiotrack1;
 
     private BulletPool bulletPool;
-    private TextureAtlas atlasbulletcrazyball;
+    private EnemyPool enemyPool;
+
+    private EnemyEmitter enemyEmitter;
+
+    private Sound laserSound;
+    private Sound bulletSound;
+
 
     public GameScreen() {
     }
 
     @Override
     public void show() {
+        super.show();
         soundWingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
         soundWingflapping.setVolume(0, 4f);
+        atlas = new TextureAtlas("textures/mainAtlas.tpack");
 
         soundShot = Gdx.audio.newSound(Gdx.files.internal("sounds/oneshot.mp3"));
 
@@ -58,7 +69,8 @@ public class GameScreen extends BaseScreen {
             }
         });
         audiotrack1.play();
-        super.show();
+        laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
 
         backgroundTexture = new Texture("textures/background1024x1024.png");
         background = new Background(backgroundTexture);
@@ -85,6 +97,9 @@ public class GameScreen extends BaseScreen {
         }
         bulletPool = new BulletPool();
         ladybugObject = new Ladybug(imgLadybugs, bulletPool, atlasbulletcrazyball, soundShot, soundWingflapping);
+        enemyPool = new EnemyPool(bulletPool, worldBounds);
+        enemyEmitter = new EnemyEmitter(atlas, enemyPool, worldBounds, bulletSound);
+
     }
 
 
@@ -105,6 +120,7 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.resize(worldBounds);
         }
+//        mainShip.resize(worldBounds);
     }
 
     @Override
@@ -118,16 +134,14 @@ public class GameScreen extends BaseScreen {
         soundWingflapping.dispose();
         audiotrack1.dispose();
         soundShot.dispose();
+        bulletPool.dispose();
+        enemyPool.dispose();
 
     }
 
-    private void freeAllDestroyed() {
-        bulletPool.freeAllDestroyedActiveSprites();
-    }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-
         soundWingflapping.loop();
         ladybugObject.moveHandle(touch, true, false, 0);
         return super.touchDown(touch, pointer, button);
@@ -172,8 +186,15 @@ public class GameScreen extends BaseScreen {
             landingFlower.update(delta);
         }
         bulletPool.updateActiveSprites(delta);
+        enemyPool.updateActiveSprites(delta);
+
+        enemyEmitter.generate(delta);
     }
 
+    private void freeAllDestroyed() {
+        bulletPool.freeAllDestroyedActiveSprites();
+        enemyPool.freeAllDestroyedActiveSprites();
+    }
 
     private void draw() {
         batch.begin();
@@ -190,6 +211,7 @@ public class GameScreen extends BaseScreen {
 
         ladybugObject.draw(batch);
         bulletPool.drawActiveSprites(batch);
+        enemyPool.drawActiveSprites(batch);
         batch.end();
     }
 

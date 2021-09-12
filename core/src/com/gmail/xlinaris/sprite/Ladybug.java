@@ -7,12 +7,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
+import com.gmail.xlinaris.base.Ship;
 import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.utils.Regions;
 
-public class Ladybug extends Sprite {
+public class Ladybug extends Ship {
 
     private Rect worldBounds;
 

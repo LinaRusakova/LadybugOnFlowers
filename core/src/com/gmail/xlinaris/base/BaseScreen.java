@@ -9,13 +9,14 @@ import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+
 import com.gmail.xlinaris.math.MatrixUtils;
 import com.gmail.xlinaris.math.Rect;
 
 public class BaseScreen implements Screen, InputProcessor {
 
     private Rect screenBounds;      //pixels based screen
-    private Rect worldBounds;       // world based screen
+    protected Rect worldBounds;       // world based screen
     private Rect glBounds;          //Open GL screen
 
     private Matrix4 worldToGl;
@@ -23,6 +24,72 @@ public class BaseScreen implements Screen, InputProcessor {
 
     private Vector2 touch;
     protected SpriteBatch batch;
+
+
+    // Implementation of Screen interface methods
+    @Override
+    public void show() {
+
+        screenBounds = new Rect();
+        worldBounds = new Rect();
+        glBounds = new Rect(0, 0, 1f, 1f);
+
+        worldToGl = new Matrix4();
+        screenToWorld = new Matrix3();
+
+        touch = new Vector2();
+
+        batch = new SpriteBatch();
+        Gdx.input.setInputProcessor(this);
+
+    }
+
+    @Override
+    public void render(float delta) {
+        ScreenUtils.clear(Color.valueOf("#73d2ff"));
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        screenBounds.setSize(width, height);
+        screenBounds.setLeft(0);
+        screenBounds.setBottom(0);
+
+        float aspect = width / (float) height;
+        worldBounds.setHeight(1f);
+        worldBounds.setWidth(1f * aspect);
+        MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
+        batch.setProjectionMatrix(worldToGl);
+        resize(worldBounds);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+
+    }
+
+    public void resize(Rect worldBounds) {
+//        System.out.println("resize worldBounds.width = " + worldBounds.getWidth() + " worldBounds.height = " + worldBounds.getHeight());
+    }
+
+    @Override
+    public void pause() {
+        System.out.println("resume");
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+        System.out.println("hide");
+        dispose();
+    }
+
+    @Override
+    public void dispose() {
+        System.out.println("dispose");
+        batch.dispose();
+    }
 
     // Implementation of InputProcessor  interface methods
     @Override
@@ -92,69 +159,4 @@ public class BaseScreen implements Screen, InputProcessor {
         return false;
     }
 
-    // Implementation of Screen interface methods
-    @Override
-    public void show() {
-
-        screenBounds = new Rect();
-        worldBounds = new Rect();
-        glBounds = new Rect(0, 0, 1f, 1f);
-
-        worldToGl = new Matrix4();
-        screenToWorld = new Matrix3();
-
-        touch = new Vector2();
-
-        batch = new SpriteBatch();
-        Gdx.input.setInputProcessor(this);
-
-    }
-
-    @Override
-    public void render(float delta) {
-        ScreenUtils.clear(Color.valueOf("#73d2ff"));
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        screenBounds.setSize(width, height);
-        screenBounds.setLeft(0);
-        screenBounds.setBottom(0);
-
-        float aspect = width / (float) height;
-        worldBounds.setHeight(1f);
-        worldBounds.setWidth(1f * aspect);
-        MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
-        batch.setProjectionMatrix(worldToGl);
-        resize(worldBounds);
-
-        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
-
-    }
-
-    public void resize(Rect worldBounds) {
-//        System.out.println("resize worldBounds.width = " + worldBounds.getWidth() + " worldBounds.height = " + worldBounds.getHeight());
-    }
-
-    @Override
-    public void pause() {
-        System.out.println("resume");
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-        System.out.println("hide");
-        dispose();
-    }
-
-    @Override
-    public void dispose() {
-        System.out.println("dispose");
-        batch.dispose();
-    }
 }
