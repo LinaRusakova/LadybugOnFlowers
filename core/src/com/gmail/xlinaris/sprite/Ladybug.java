@@ -105,7 +105,12 @@ public class Ladybug extends Ship {
             stop();
         }
         checkAndHandleBounds();
+
+
     }
+
+
+
 
     private void checkAndHandleBounds() {
         if (getRight() < worldBounds.getLeft() + 2 * halfWidth) {

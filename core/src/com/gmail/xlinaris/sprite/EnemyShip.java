@@ -10,17 +10,27 @@ import com.gmail.xlinaris.pool.BulletPool;
 
 public class EnemyShip extends Ship {
 
+    boolean isNotPlayingSpeed;
+
     public EnemyShip(BulletPool bulletPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
         this.worldBounds = worldBounds;
         this.bulletV = new Vector2();
         this.bulletPos = new Vector2();
+        this.isNotPlayingSpeed =true;
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
         this.bulletPos.set(pos.x, pos.y - getHalfHeight());
+
+    }
+
+    public void setPlayingSpeed() {
+        if (this.isNotPlayingSpeed) {
+            this.v.set(0, (float) v0.y / 2);
+        }
     }
 
     public void set(
@@ -47,4 +57,5 @@ public class EnemyShip extends Ship {
         this.hp = hp;
         v.set(v0);
     }
+
 }

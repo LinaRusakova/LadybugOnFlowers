@@ -13,10 +13,15 @@ import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.pool.EnemyPool;
 import com.gmail.xlinaris.sprite.Background;
+import com.gmail.xlinaris.sprite.Bullet;
+import com.gmail.xlinaris.sprite.EnemyShip;
 import com.gmail.xlinaris.sprite.Flower;
 import com.gmail.xlinaris.sprite.Ladybug;
 import com.gmail.xlinaris.sprite.LandingFlower;
 import com.gmail.xlinaris.utils.EnemyEmitter;
+
+import java.util.List;
+
 
 
 public class GameScreen extends BaseScreen {
@@ -43,9 +48,10 @@ public class GameScreen extends BaseScreen {
 
     private EnemyEmitter enemyEmitter;
 
+
     private Sound laserSound;
     private Sound bulletSound;
-
+    private TextureAtlas atlasEnemy;
 
     public GameScreen() {
     }
@@ -56,6 +62,7 @@ public class GameScreen extends BaseScreen {
         soundWingflapping = Gdx.audio.newSound(Gdx.files.internal("sounds/ladybyugwingflappingsound.ogg"));
         soundWingflapping.setVolume(0, 4f);
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        atlasEnemy = new TextureAtlas("textures/enemy.atlas");
 
         soundShot = Gdx.audio.newSound(Gdx.files.internal("sounds/oneshot.mp3"));
 
@@ -71,7 +78,8 @@ public class GameScreen extends BaseScreen {
         audiotrack1.play();
         laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
-
+        laserSound.setVolume(0, .1f);
+        bulletSound.setVolume(1, .001f);
         backgroundTexture = new Texture("textures/background1024x1024.png");
         background = new Background(backgroundTexture);
 
@@ -87,8 +95,6 @@ public class GameScreen extends BaseScreen {
 
         imgLadybugs = new Texture("textures/ladybug.png");
 
-        // ladybugObject.setAngle(ladybugObject.pos.angleDeg());
-
         landingFlowers = new LandingFlower[DOCKS_COUNT];
         for (int i = 0; i < landingFlowers.length; i++) {
             int texturVariant = MathUtils.random(1, 10) > 7 ? 2 : 1;
@@ -98,7 +104,7 @@ public class GameScreen extends BaseScreen {
         bulletPool = new BulletPool();
         ladybugObject = new Ladybug(imgLadybugs, bulletPool, atlasbulletcrazyball, soundShot, soundWingflapping);
         enemyPool = new EnemyPool(bulletPool, worldBounds);
-        enemyEmitter = new EnemyEmitter(atlas, enemyPool, worldBounds, bulletSound);
+        enemyEmitter = new EnemyEmitter(atlasEnemy, enemyPool, worldBounds, bulletSound);
 
     }
 
@@ -106,8 +112,11 @@ public class GameScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
+
         update(delta);
+
         freeAllDestroyed();
+
         draw();
     }
 
@@ -120,7 +129,7 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.resize(worldBounds);
         }
-//        mainShip.resize(worldBounds);
+
     }
 
     @Override
@@ -165,7 +174,6 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean keyDown(int keycode) {
         ladybugObject.keyDown(keycode);
-       // soundWingflapping.loop();
         ladybugObject.moveHandle(null, false, true, keycode);
 
         return super.keyDown(keycode);
@@ -174,7 +182,6 @@ public class GameScreen extends BaseScreen {
     @Override
     public boolean keyUp(int keycode) {
         ladybugObject.keyUp(keycode);
-        //soundWingflapping.stop();
         ladybugObject.moveHandle(null, false, false, keycode);
 
         return super.keyUp(keycode);
@@ -185,10 +192,39 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.update(delta);
         }
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
-
+        bulletPool.updateActiveSprites(delta, ladybugObject, bulletPool);
+        enemyPool.updateActiveSprites(delta, ladybugObject, bulletPool);
         enemyEmitter.generate(delta);
+        chekcollisions();
+    }
+
+
+    private void chekcollisions() {
+        List<EnemyShip> enemyShipList = enemyPool.getActiveObjects();
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+
+
+
+        for (EnemyShip enemyShip : enemyShipList) {
+
+            if (enemyShip.getTop() <= worldBounds.getTop()) {
+                    enemyShip.setPlayingSpeed();
+            }
+        }
+        for (EnemyShip enemyShip : enemyShipList) {
+            for (Bullet bullet : bulletList) {
+                float minDst = bullet.getHalfWidth();
+                if (enemyShip.pos.dst(bullet.pos) < minDst) {
+                    enemyShip.destroy();
+                }
+            }
+            float minDst = enemyShip.getHalfWidth() + ladybugObject.getHalfWidth();
+            if (ladybugObject.pos.dst(enemyShip.pos) < minDst) {
+                enemyShip.destroy();
+
+            }
+        }
+
     }
 
     private void freeAllDestroyed() {

@@ -9,6 +9,8 @@ import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.sprite.Bullet;
 
 public class Ship extends Sprite {
+
+
     protected final Vector2 v0 = new Vector2();
     protected final Vector2 v = new Vector2();
 
@@ -43,11 +45,16 @@ public class Ship extends Sprite {
             reloadTimer = 0f;
             shoot();
         }
+
     }
+
 
     private void shoot() {
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, bulletPos, bulletV, bulletHeight, worldBounds, bulletDamage);
         bulletSound.play();
     }
+
+
+
 }
