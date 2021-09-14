@@ -2,6 +2,7 @@ package com.gmail.xlinaris.base;
 
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.gmail.xlinaris.pool.BulletPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,13 @@ public abstract class SpritesPool<T extends Sprite> {
         return object;
     }
 
-    public void updateActiveSprites(float delta) {
+    public void updateActiveSprites(float delta, Sprite target, BulletPool bulletPool) {
         for (Sprite sprite : activeObjects) {
-            if (!sprite.isDestroyed()) {
-                sprite.update(delta);
-            }
+
+                if (!sprite.isDestroyed()) {
+                    sprite.update(delta);
+                }
+
         }
     }
 
@@ -66,4 +69,6 @@ public abstract class SpritesPool<T extends Sprite> {
             System.out.println(getClass().getSimpleName() + " active/free : " + activeObjects.size() + " / " + freeObjects.size());
         }
     }
+
+
 }
