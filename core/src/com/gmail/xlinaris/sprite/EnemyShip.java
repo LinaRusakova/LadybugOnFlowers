@@ -7,31 +7,43 @@ import com.badlogic.gdx.math.Vector2;
 import com.gmail.xlinaris.base.Ship;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
+import com.gmail.xlinaris.pool.ExplosionPool;
 
 public class EnemyShip extends Ship {
 
-    boolean isNotPlayingSpeed;
+    //    boolean isNotPlayingSpeed;
+    private static final Vector2 startV = new Vector2(0, -0.3f);
 
-    public EnemyShip(BulletPool bulletPool, Rect worldBounds) {
+    public EnemyShip(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.worldBounds = worldBounds;
         this.bulletV = new Vector2();
         this.bulletPos = new Vector2();
-        this.isNotPlayingSpeed =true;
+//        this.isNotPlayingSpeed =true;
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        this.bulletPos.set(pos.x, pos.y - getHalfHeight());
-
-    }
-
-    public void setPlayingSpeed() {
-        if (this.isNotPlayingSpeed) {
-            this.v.set(0, (float) v0.y / 2);
+        if (getTop() < worldBounds.getTop()) {
+            v.set(v0);
+        } else {
+            reloadTimer = .8f * reloadInterval;
         }
+        this.bulletPos.set(pos.x, pos.y - getHalfHeight());
+        if (getBottom()<worldBounds.getBottom()) {
+            destroy();
+        }
+
     }
+
+//
+//    public void setPlayingSpeed() {
+//        if (this.isNotPlayingSpeed) {
+//            this.v.set(0, (float) v0.y / 2);
+//        }
+//    }
 
     public void set(
             TextureRegion[] regions,
@@ -55,7 +67,12 @@ public class EnemyShip extends Ship {
         this.bulletSound = bulletSound;
         setHeightProportion(height);
         this.hp = hp;
-        v.set(v0);
+        v.set(startV);
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        reloadTimer = 0f;
+    }
 }

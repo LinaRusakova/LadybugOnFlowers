@@ -12,6 +12,7 @@ import com.gmail.xlinaris.base.BaseScreen;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.pool.EnemyPool;
+import com.gmail.xlinaris.pool.ExplosionPool;
 import com.gmail.xlinaris.sprite.Background;
 import com.gmail.xlinaris.sprite.Bullet;
 import com.gmail.xlinaris.sprite.EnemyShip;
@@ -21,7 +22,6 @@ import com.gmail.xlinaris.sprite.LandingFlower;
 import com.gmail.xlinaris.utils.EnemyEmitter;
 
 import java.util.List;
-
 
 
 public class GameScreen extends BaseScreen {
@@ -44,6 +44,7 @@ public class GameScreen extends BaseScreen {
     private Music audiotrack1;
 
     private BulletPool bulletPool;
+    private ExplosionPool explosionPool;
     private EnemyPool enemyPool;
 
     private EnemyEmitter enemyEmitter;
@@ -51,6 +52,7 @@ public class GameScreen extends BaseScreen {
 
     private Sound laserSound;
     private Sound bulletSound;
+    private Sound explosionSound;
     private TextureAtlas atlasEnemy;
 
     public GameScreen() {
@@ -78,6 +80,7 @@ public class GameScreen extends BaseScreen {
         audiotrack1.play();
         laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
+        explosionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.wav"));
         laserSound.setVolume(0, .1f);
         bulletSound.setVolume(1, .001f);
         backgroundTexture = new Texture("textures/background1024x1024.png");
@@ -102,8 +105,9 @@ public class GameScreen extends BaseScreen {
             landingFlowers[i].setAngle(180f);
         }
         bulletPool = new BulletPool();
-        ladybugObject = new Ladybug(imgLadybugs, bulletPool, atlasbulletcrazyball, soundShot, soundWingflapping);
-        enemyPool = new EnemyPool(bulletPool, worldBounds);
+        explosionPool = new ExplosionPool(atlas, explosionSound);
+        ladybugObject = new Ladybug(imgLadybugs, bulletPool, explosionPool, atlasbulletcrazyball, soundShot, soundWingflapping);
+        enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
         enemyEmitter = new EnemyEmitter(atlasEnemy, enemyPool, worldBounds, bulletSound);
 
     }
@@ -145,6 +149,8 @@ public class GameScreen extends BaseScreen {
         soundShot.dispose();
         bulletPool.dispose();
         enemyPool.dispose();
+        explosionPool.dispose();
+        explosionSound.dispose();
 
     }
 
@@ -192,8 +198,9 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.update(delta);
         }
-        bulletPool.updateActiveSprites(delta, ladybugObject, bulletPool);
-        enemyPool.updateActiveSprites(delta, ladybugObject, bulletPool);
+        bulletPool.updateActiveSprites(delta);
+        explosionPool.updateActiveSprites(delta);
+        enemyPool.updateActiveSprites(delta);
         enemyEmitter.generate(delta);
         chekcollisions();
     }
@@ -204,13 +211,13 @@ public class GameScreen extends BaseScreen {
         List<Bullet> bulletList = bulletPool.getActiveObjects();
 
 
-
-        for (EnemyShip enemyShip : enemyShipList) {
-
-            if (enemyShip.getTop() <= worldBounds.getTop()) {
-                    enemyShip.setPlayingSpeed();
-            }
-        }
+//
+//        for (EnemyShip enemyShip : enemyShipList) {
+//
+//            if (enemyShip.getTop() <= worldBounds.getTop()) {
+//                    enemyShip.setPlayingSpeed();
+//            }
+//        }
         for (EnemyShip enemyShip : enemyShipList) {
             for (Bullet bullet : bulletList) {
                 float minDst = bullet.getHalfWidth();
@@ -229,6 +236,7 @@ public class GameScreen extends BaseScreen {
 
     private void freeAllDestroyed() {
         bulletPool.freeAllDestroyedActiveSprites();
+        explosionPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
     }
 
@@ -247,6 +255,7 @@ public class GameScreen extends BaseScreen {
 
         ladybugObject.draw(batch);
         bulletPool.drawActiveSprites(batch);
+        explosionPool.drawActiveSprites(batch);
         enemyPool.drawActiveSprites(batch);
         batch.end();
     }

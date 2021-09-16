@@ -34,9 +34,9 @@ public class EnemyEmitter {
         private final Vector2 enemySmallBulletV = new Vector2(0, -0.3f);
         private final Vector2 enemyMediumBulletV = new Vector2(0, -0.25f);
         private final Vector2 enemyBigBulletV = new Vector2(0, -0.3f);
-        private final Vector2 enemySmallV = new Vector2(0, -0.4f);
-        private final Vector2 enemyMediumV = new Vector2(0, -0.3f);
-        private final Vector2 enemyBigV = new Vector2(0, -0.2f);
+        private final Vector2 enemySmallV = new Vector2(0, -0.2f);
+        private final Vector2 enemyMediumV = new Vector2(0, -0.15f);
+        private final Vector2 enemyBigV = new Vector2(0, -0.1f);
 
         private final Rect worldBounds;
         private final Sound bulletSound;

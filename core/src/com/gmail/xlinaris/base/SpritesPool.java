@@ -25,7 +25,7 @@ public abstract class SpritesPool<T extends Sprite> {
         return object;
     }
 
-    public void updateActiveSprites(float delta, Sprite target, BulletPool bulletPool) {
+    public void updateActiveSprites(float delta) {
         for (Sprite sprite : activeObjects) {
 
                 if (!sprite.isDestroyed()) {

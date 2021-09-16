@@ -11,6 +11,7 @@ import com.gmail.xlinaris.base.Ship;
 import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
+import com.gmail.xlinaris.pool.ExplosionPool;
 import com.gmail.xlinaris.utils.Regions;
 
 public class Ladybug extends Ship {
@@ -45,13 +46,13 @@ public class Ladybug extends Ship {
     private final int SPEEDSHOT = 120;
     private int shot = 0;
 
-    public Ladybug(Texture texture, BulletPool bulletPool, TextureAtlas atlas, Sound soundShot, Sound soundWingflapping) {
+    public Ladybug(Texture texture, BulletPool bulletPool, ExplosionPool explosionPool, TextureAtlas atlas, Sound soundShot, Sound soundWingflapping) {
         this.soundShot = soundShot;
         this.soundWingflapping = soundWingflapping;
-
         this.regions = Regions.split(new TextureRegion(texture), 2, 1, 2);
-
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
+
         bulletRegion = atlas.findRegion("bulletcrazyball1-2");
         bulletV = new Vector2(0, 0.5f);
         bulletPos = new Vector2();
@@ -90,7 +91,7 @@ public class Ladybug extends Ship {
         public void run() {
             soundShot.play(.1f);
         }
-    }, 0f,.1f );
+    }, 0f, .1f);
 
     public void update(float delta) {
         moveTo();
@@ -108,8 +109,6 @@ public class Ladybug extends Ship {
 
 
     }
-
-
 
 
     private void checkAndHandleBounds() {
