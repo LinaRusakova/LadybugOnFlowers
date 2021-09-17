@@ -33,6 +33,8 @@ public class Ship extends Sprite {
 
     protected int hp;
 
+    protected float damageAnimateTimer = DAMAGE_ANIMATE_INTERVAL;
+
     public Ship() {
     }
 
@@ -50,6 +52,10 @@ public class Ship extends Sprite {
             shoot();
         }
 
+        damageAnimateTimer += delta;
+        if (damageAnimateTimer >= DAMAGE_ANIMATE_INTERVAL) {
+            frame = 0;
+        }
     }
 
     private void shoot() {
@@ -67,5 +73,20 @@ public class Ship extends Sprite {
     public void destroy() {
         super.destroy();
         boom();
+    }
+
+    public void damage(int damage) {
+        hp -= damage;
+        if (hp <= 0) {
+            hp = 0;
+            destroy();
+        }
+
+        frame = 1;
+        damageAnimateTimer = 0;
+    }
+
+    public int getBulletDamage() {
+        return bulletDamage;
     }
 }

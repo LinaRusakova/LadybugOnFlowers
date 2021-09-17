@@ -20,7 +20,7 @@ public class Sprite extends Rect {
     public Sprite() {
     }
     public Sprite(TextureRegion region) {
-        regions = new TextureRegion[2];
+        regions = new TextureRegion[1];
         regions[0] = region;
     }
 

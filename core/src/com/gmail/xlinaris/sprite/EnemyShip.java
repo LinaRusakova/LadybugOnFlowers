@@ -32,7 +32,7 @@ public class EnemyShip extends Ship {
             reloadTimer = .8f * reloadInterval;
         }
         this.bulletPos.set(pos.x, pos.y - getHalfHeight());
-        if (getBottom()<worldBounds.getBottom()) {
+        if (getBottom() < worldBounds.getBottom()) {
             destroy();
         }
 
@@ -74,5 +74,14 @@ public class EnemyShip extends Ship {
     public void destroy() {
         super.destroy();
         reloadTimer = 0f;
+    }
+
+    public boolean isCollision(Rect rect) {
+        return !(
+                rect.getRight() < getLeft()
+                        || rect.getLeft() > getRight()
+                        || rect.getBottom() > getTop()
+                        || rect.getTop() < pos.y
+        );
     }
 }

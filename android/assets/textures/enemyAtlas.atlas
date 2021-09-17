@@ -1,0 +1,34 @@
+
+enemyAtlas.png
+size: 1024, 512
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+bug
+  rotate: false
+  xy: 2, 112
+  size: 300, 164
+  orig: 300, 164
+  offset: 0, 0
+  index: -1
+bullet
+  rotate: false
+  xy: 2, 278
+  size: 872, 218
+  orig: 872, 218
+  offset: 0, 0
+  index: -1
+spider
+  rotate: false
+  xy: 2, 2
+  size: 160, 108
+  orig: 160, 108
+  offset: 0, 0
+  index: -1
+wasp
+  rotate: false
+  xy: 876, 222
+  size: 98, 274
+  orig: 98, 274
+  offset: 0, 0
+  index: -1

@@ -2,26 +2,20 @@ package com.gmail.xlinaris.sprite;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Timer;
 import com.gmail.xlinaris.base.Ship;
-import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.pool.ExplosionPool;
-import com.gmail.xlinaris.utils.Regions;
 
 public class Ladybug extends Ship {
-
-    private Rect worldBounds;
-
 
     private boolean isTouch;
     private boolean isKeyPress;
     private int keycode;
+    private static final int HP = 10;
+    private static final float RELOAD_INTERVAL = 0.2f;
 
     private final Vector2 tmpCurrentPosition;
     private Vector2 tmpDestinationPosition;
@@ -31,35 +25,31 @@ public class Ladybug extends Ship {
     private boolean wingbeatFlag = true;
     private static final int wingbeatCount = 5;
 
-    private final BulletPool bulletPool;
-    private final TextureRegion bulletRegion;
-    private final Vector2 bulletV;
-    private final Vector2 bulletPos;
-    private final float bulletHeight;
-    private final int bulletDamage;
+
     private boolean pressedLeft;
     private boolean pressedRight;
-    private final Vector2 v0 = new Vector2(0.5f, 0);
-    private final Vector2 v = new Vector2();
-    private final Sound soundShot;
-    private Sound soundWingflapping;
-    private final int SPEEDSHOT = 120;
+
+    private final Sound flappingSound;
     private int shot = 0;
 
-    public Ladybug(Texture texture, BulletPool bulletPool, ExplosionPool explosionPool, TextureAtlas atlas, Sound soundShot, Sound soundWingflapping) {
-        this.soundShot = soundShot;
-        this.soundWingflapping = soundWingflapping;
-        this.regions = Regions.split(new TextureRegion(texture), 2, 1, 2);
+    public Ladybug(TextureAtlas ladyBugAtlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shotSound, Sound flappingSound) {
+        super(ladyBugAtlas.findRegion("ladybug"), 1, 2, 2);
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
+        this.bulletSound = shotSound;
+        this.flappingSound = flappingSound;
 
-        bulletRegion = atlas.findRegion("bulletcrazyball1-2");
+
+        bulletRegion = ladyBugAtlas.findRegion("water");
+        bulletRegion.flip(false, true);
         bulletV = new Vector2(0, 0.5f);
         bulletPos = new Vector2();
-        bulletHeight = 0.01f;
+        bulletHeight = 0.04f;
         bulletDamage = 1;
         tmpCurrentPosition = new Vector2();
         tmpDestinationPosition = new Vector2();
+        hp = HP;
+        reloadInterval = RELOAD_INTERVAL;
     }
 
 
@@ -71,6 +61,10 @@ public class Ladybug extends Ship {
     }
 
     public void moveHandle(Vector2 touch, boolean isTouch, boolean isKeyPress, int keycode) {
+        if (this.isDestroyed()) {
+            return;
+        }
+
         if (touch != null) {
             this.tmpDestinationPosition.set(touch);
         }
@@ -79,23 +73,10 @@ public class Ladybug extends Ship {
         this.keycode = keycode;
     }
 
-    Timer.Task shootTimer = new Timer().scheduleTask(new Timer.Task() {
-        @Override
-        public void run() {
-            shoot();
-
-        }
-    }, 0f, .1f);
-    Timer.Task soundshotTimer = new Timer().scheduleTask(new Timer.Task() {
-        @Override
-        public void run() {
-            soundShot.play(.1f);
-        }
-    }, 0f, .1f);
 
     public void update(float delta) {
-        moveTo();
-        pos.mulAdd(v, delta);
+        super.update(delta);
+        bulletPos.set(pos.x, pos.y + getHalfHeight());
 
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
@@ -105,13 +86,16 @@ public class Ladybug extends Ship {
             setLeft(worldBounds.getLeft());
             stop();
         }
-        checkAndHandleBounds();
+        if (!this.isDestroyed()) {
+            checkAndHandleBounds();
+        }
 
 
     }
 
 
     private void checkAndHandleBounds() {
+        moveTo();
         if (getRight() < worldBounds.getLeft() + 2 * halfWidth) {
             setRight(worldBounds.getLeft() + 2 * halfWidth);
         }
@@ -140,10 +124,9 @@ public class Ladybug extends Ship {
                 case Input.Keys.UP:
                     System.out.println("UP");
 
-//                    if ((tmpCurrentPosition.y += velocity.y) <= worldBounds.getTop() - halfWidth) {
-//                        pos.y += velocity.y;
-//                    }
-//                    shoot();
+                    if ((tmpCurrentPosition.y += velocity.y) <= worldBounds.getTop() - halfWidth) {
+                        pos.y += velocity.y;
+                    }
                     break;
 
                 case Input.Keys.DOWN:
@@ -171,11 +154,10 @@ public class Ladybug extends Ship {
 
 
         } else if (keycode != 0 && !isKeyPress) {
-
             tmpDestinationPosition.set(pos);
             frame = 0;
             keycode = 0;
-            soundWingflapping.stop();
+            flappingSound.stop();
 //            soundShot.stop();
 
         } else if (tmpDestinationPosition != null && isTouch) {
@@ -204,21 +186,21 @@ public class Ladybug extends Ship {
             case Input.Keys.A:
             case Input.Keys.LEFT:
                 pressedLeft = true;
-                soundWingflapping.loop();
+                flappingSound.loop();
                 moveLeft();
 
                 break;
             case Input.Keys.D:
             case Input.Keys.RIGHT:
                 pressedRight = true;
-                soundWingflapping.loop();
+                flappingSound.loop();
                 moveRight();
                 break;
             case Input.Keys.UP:
 //                shoot();
                 break;
             case Input.Keys.DOWN:
-                soundWingflapping.loop();
+                flappingSound.loop();
                 break;
         }
         return false;
@@ -248,25 +230,27 @@ public class Ladybug extends Ship {
         return false;
     }
 
+    public boolean isCollision(Rect rect) {
+        return !(
+                rect.getRight() < getLeft()
+                        || rect.getLeft() > getRight()
+                        || rect.getBottom() > pos.y
+                        || rect.getTop() < getBottom()
+        );
+    }
+
     private void moveRight() {
         v.set(v0);
+        wingFlapping();
     }
 
     private void moveLeft() {
         v.set(v0).rotateDeg(180);
+        wingFlapping();
     }
 
     private void stop() {
         v.setZero();
     }
-
-    private void shoot() {
-
-        Bullet bullet = bulletPool.obtain();
-        bulletPos.set(pos.x, pos.y + getHalfHeight());
-        bullet.set(this, bulletRegion, bulletPos, bulletV, 0.03f, worldBounds, bulletDamage);
-
-    }
-
 }
 

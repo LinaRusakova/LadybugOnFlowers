@@ -54,10 +54,10 @@ public class EnemyEmitter {
             this.enemyPool = enemyPool;
             this.worldBounds = worldBounds;
             this.bulletSound = bulletSound;
-            enemySmallRegions = Regions.split(atlas.findRegion("spider"), 1, 1, 2);
-            enemyMediumRegions = Regions.split(atlas.findRegion("wasp"), 1, 1, 2);
-            enemyBigRegions = Regions.split(atlas.findRegion("bug"), 1, 1, 2);
-            bulletRegion = atlas.findRegion("water");
+            enemySmallRegions = Regions.split(atlas.findRegion("spider"), 1, 2, 2);
+            enemyMediumRegions = Regions.split(atlas.findRegion("wasp"), 2, 1, 2);
+            enemyBigRegions = Regions.split(atlas.findRegion("bug"), 1, 2, 2);
+            bulletRegion = Regions.split(atlas.findRegion("bullet"), 1, 4, 4)[0];
         }
 
         public void generate(float delta) {
