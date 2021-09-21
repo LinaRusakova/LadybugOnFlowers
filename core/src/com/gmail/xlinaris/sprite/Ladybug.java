@@ -14,7 +14,7 @@ public class Ladybug extends Ship {
     private boolean isTouch;
     private boolean isKeyPress;
     private int keycode;
-    private static final int HP = 5;
+    private static final int HP = 50;
     private static final float RELOAD_INTERVAL = 0.2f;
 
     private final Vector2 tmpCurrentPosition;

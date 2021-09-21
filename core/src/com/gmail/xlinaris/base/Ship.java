@@ -86,6 +86,10 @@ public class Ship extends Sprite {
         damageAnimateTimer = 0;
     }
 
+    public int getHp() {
+        return hp;
+    }
+
     public int getBulletDamage() {
         return bulletDamage;
     }

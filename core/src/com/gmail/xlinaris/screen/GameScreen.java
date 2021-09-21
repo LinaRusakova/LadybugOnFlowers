@@ -4,12 +4,18 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.gmail.xlinaris.base.BaseScreen;
+import com.gmail.xlinaris.base.Font;
+import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
 import com.gmail.xlinaris.pool.BulletPool;
 import com.gmail.xlinaris.pool.EnemyPool;
@@ -29,6 +35,11 @@ import java.util.List;
 
 public class GameScreen extends BaseScreen {
     private final Game game;
+
+    private static final String FRAGS = "Frags: ";
+    private static final String HP = "HP: ";
+    private static final String LEVEL = "Level: ";
+    private static final float TEXT_MARGIN = .01f;
     private static final int DOCKS_COUNT = 12;
     private TextureAtlas atlas;
     private TextureAtlas atlasFlowersLanding;
@@ -57,6 +68,13 @@ public class GameScreen extends BaseScreen {
 
     private ReplayButton replayButton;
     private GameOverMessage gameOverMessage;
+
+    private Font font;
+    private StringBuilder sbFrags;
+    private StringBuilder sbHP;
+    private StringBuilder sbLevel;
+    private int frags;
+
 
     public GameScreen(Game game) {
         this.game = game;
@@ -103,6 +121,13 @@ public class GameScreen extends BaseScreen {
         replayButton = new ReplayButton(atlas);
         gameOverMessage = new GameOverMessage(atlas);
 
+
+
+        font = new Font("font/font.fnt", "font/font.png");
+        font.setSize(.02f);
+        sbFrags = new StringBuilder();
+        sbHP = new StringBuilder();
+        sbLevel = new StringBuilder();
     }
 
     @Override
@@ -211,7 +236,7 @@ public class GameScreen extends BaseScreen {
             ladybugObject.update(delta);
             bulletPool.updateActiveSprites(delta);
             enemyPool.updateActiveSprites(delta);
-            enemyEmitter.generate(delta);
+            enemyEmitter.generate(delta,frags);
         }
     }
 
@@ -246,6 +271,9 @@ public class GameScreen extends BaseScreen {
                     if (enemyShip.isCollision(bullet)) {
                         enemyShip.damage(bullet.getDamage());
                         bullet.destroy();
+                        if (enemyShip.isDestroyed()) {
+                            frags++;
+                        }
                     }
                 }
             }
@@ -283,10 +311,22 @@ public class GameScreen extends BaseScreen {
             replayButton.draw(batch);
         }
         explosionPool.drawActiveSprites(batch);
+        printInfo();
         batch.end();
     }
 
+    private void printInfo() {
+        sbFrags.setLength(0);
+        font.draw(batch, sbFrags.append(FRAGS).append(frags), worldBounds.getLeft() + TEXT_MARGIN, worldBounds.getTop() - TEXT_MARGIN);
+        sbHP.setLength(0);
+        font.draw(batch, sbHP.append(HP).append(ladybugObject.getHp()), worldBounds.pos.x, worldBounds.getTop() - TEXT_MARGIN, Align.center);
+        sbLevel.setLength(0);
+        font.draw(batch, sbLevel.append(LEVEL).append(enemyEmitter.getLevel()), worldBounds.getRight() - TEXT_MARGIN, worldBounds.getTop() - TEXT_MARGIN, Align.right);
+
+    }
+
     private void restartGame() {
+        frags = 0;
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas, explosionSound);
         enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
