@@ -18,6 +18,11 @@ public class Ladybug extends Ship {
     private static final float RELOAD_INTERVAL = 0.2f;
 
     private final Vector2 tmpCurrentPosition;
+
+    public Vector2 getTmpDestinationPosition() {
+        return tmpDestinationPosition;
+    }
+
     private final Vector2 tmpDestinationPosition;
 
     private Vector2 velocity;
@@ -89,6 +94,7 @@ public class Ladybug extends Ship {
         if (!this.isDestroyed()) {
             checkAndHandleBounds();
         }
+
     }
 
     private void checkAndHandleBounds() {
@@ -131,6 +137,21 @@ public class Ladybug extends Ship {
                         pos.y -= velocity.y;
                     }
                     break;
+
+                case Input.Keys.LEFT:
+                    System.out.println("LEFT");
+                    if ((tmpCurrentPosition.x -= velocity.x) >= worldBounds.getLeft() + halfWidth) {
+                        pos.x -= velocity.x;
+                    }
+
+                    break;
+                case Input.Keys.RIGHT:
+                    System.out.println("RIGHT");
+                    if ((tmpCurrentPosition.x += velocity.x) <= worldBounds.getRight() - halfWidth) {
+                        pos.x += velocity.x;
+                    }
+
+                    break;
             }
 
 
@@ -171,51 +192,49 @@ public class Ladybug extends Ship {
     }
 
     public boolean keyDown(int keycode) {
-        switch (keycode) {
-            case Input.Keys.A:
-            case Input.Keys.LEFT:
-                pressedLeft = true;
-                flappingSound.loop();
-                moveLeft();
-
-                break;
-            case Input.Keys.D:
-            case Input.Keys.RIGHT:
-                pressedRight = true;
-                flappingSound.loop();
-                moveRight();
-                break;
-            case Input.Keys.UP:
-//                shoot();
-                break;
-            case Input.Keys.DOWN:
-                flappingSound.loop();
-                break;
-        }
+//        switch (keycode) {
+//            case Input.Keys.A:
+//            case Input.Keys.LEFT:
+//                pressedLeft = true;
+//                flappingSound.loop();
+//                moveLeft();
+//                break;
+//            case Input.Keys.D:
+//            case Input.Keys.RIGHT:
+//                pressedRight = true;
+//                flappingSound.loop();
+//                moveRight();
+//                break;
+////            case Input.Keys.UP:
+////                break;
+////            case Input.Keys.DOWN:
+////                flappingSound.loop();
+////                break;
+//        }
         return false;
     }
 
     public boolean keyUp(int keycode) {
-        switch (keycode) {
-            case Input.Keys.A:
-            case Input.Keys.LEFT:
-                pressedLeft = false;
-                if (pressedRight) {
-                    moveRight();
-                } else {
-                    stop();
-                }
-                break;
-            case Input.Keys.D:
-            case Input.Keys.RIGHT:
-                pressedRight = false;
-                if (pressedLeft) {
-                    moveLeft();
-                } else {
-                    stop();
-                }
-                break;
-        }
+//        switch (keycode) {
+//            case Input.Keys.A:
+//            case Input.Keys.LEFT:
+//                pressedLeft = false;
+//                if (pressedRight) {
+//                    moveRight();
+//                } else {
+//                    stop();
+//                }
+//                break;
+//            case Input.Keys.D:
+//            case Input.Keys.RIGHT:
+//                pressedRight = false;
+//                if (pressedLeft) {
+//                    moveLeft();
+//                } else {
+//                    stop();
+//                }
+//                break;
+//        }
         return false;
     }
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
@@ -248,7 +249,7 @@ public class GameScreen extends BaseScreen {
             camomileEmitter.generate(delta);
         }
     }
-
+    int tmpSlow = 0;
     private void chekCollisions() {
         if (ladybugObject.isDestroyed()) {
             return;
