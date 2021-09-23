@@ -1,13 +1,9 @@
 package com.gmail.xlinaris.sprite;
 
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.gmail.xlinaris.base.Ship;
 import com.gmail.xlinaris.base.Sprite;
 import com.gmail.xlinaris.math.Rect;
-import com.gmail.xlinaris.pool.BulletPool;
-import com.gmail.xlinaris.pool.ExplosionPool;
 
 public class Camomile extends Sprite {
     private Rect worldBounds;
@@ -24,7 +20,6 @@ public class Camomile extends Sprite {
         this.isNotPlayingSpeed = true;
     }
 
-
     public int getType() {
         return type;
     }
@@ -38,7 +33,6 @@ public class Camomile extends Sprite {
         }
     }
 
-    //
     public void setPlayingSpeed() {
         if (this.isNotPlayingSpeed) {
             this.v.set(0, (float) v0.y / 2);

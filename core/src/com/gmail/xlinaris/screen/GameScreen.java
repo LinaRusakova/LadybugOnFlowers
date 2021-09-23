@@ -31,9 +31,7 @@ import com.gmail.xlinaris.sprite.ReplayButton;
 import com.gmail.xlinaris.utils.CamomileEmitter;
 import com.gmail.xlinaris.utils.EnemyEmitter;
 
-import java.util.Arrays;
 import java.util.List;
-
 
 public class GameScreen extends BaseScreen {
     private final Game game;
@@ -80,8 +78,6 @@ public class GameScreen extends BaseScreen {
     private int frags;
 
     private TextureAtlas buttonAtlas;
-
-
 
     public GameScreen(Game game) {
         this.game = game;
@@ -142,7 +138,7 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         super.render(delta);
         update(delta);
-        chekCollisions(delta);
+        chekCollisions();
         freeAllDestroyed();
         draw();
     }
@@ -159,7 +155,6 @@ public class GameScreen extends BaseScreen {
         replayButton.resize(worldBounds);
         gameOverMessage.resize(worldBounds);
         exitButton.resize(worldBounds);
-
     }
 
     @Override
@@ -181,7 +176,6 @@ public class GameScreen extends BaseScreen {
         bulletSound.dispose();
         camomilePool.dispose();
     }
-
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
@@ -255,18 +249,11 @@ public class GameScreen extends BaseScreen {
         }
     }
 
-    private void chekCollisions(float delta) {
+    private void chekCollisions() {
         if (ladybugObject.isDestroyed()) {
             return;
         }
 
-//
-//        for (EnemyShip enemyShip : enemyShipList) {
-//
-//            if (enemyShip.getTop() <= worldBounds.getTop()) {
-//                    enemyShip.setPlayingSpeed();
-//            }
-//        }
         List<EnemyShip> enemyShipList = enemyPool.getActiveObjects();
         for (EnemyShip enemyShip : enemyShipList) {
             float minDst = enemyShip.getHalfWidth() + ladybugObject.getHalfWidth();
@@ -280,7 +267,6 @@ public class GameScreen extends BaseScreen {
 
         for (Camomile camomile : camomileList) {
 
-            float minDst = camomile.getHalfWidth() + ladybugObject.getHalfWidth();
             if (camomile.getTop() <= worldBounds.getTop()) {
                 camomile.setPlayingSpeed();
             }
@@ -288,14 +274,9 @@ public class GameScreen extends BaseScreen {
                 if (camomile.getType() == 1) {
                     ladybugObject.addHP();
                     camomile.destroy();
-
                 } else {
-                    if (delta >20f) {
-                        ladybugObject.pos.set(camomile.pos);
-                    } else   ladybugObject.pos.set(0,0);
-
+                    ladybugObject.pos.lerp(camomile.pos, .05f);
                 }
-
             }
         }
 
@@ -335,10 +316,6 @@ public class GameScreen extends BaseScreen {
         batch.setColor(1f, 1f, 1f, 1f);
 
         if (!ladybugObject.isDestroyed()) {
-//            for (LandingFlower landingFlower : landingFlowers) {
-//                landingFlower.draw(batch);
-//            }
-
             camomilePool.drawActiveSprites(batch);
             ladybugObject.draw(batch);
             bulletPool.drawActiveSprites(batch);
@@ -367,7 +344,6 @@ public class GameScreen extends BaseScreen {
         font.draw(batch, sbHP.append(HP).append(ladybugObject.getHp()), worldBounds.pos.x, worldBounds.getTop() - TEXT_MARGIN, Align.center);
         sbLevel.setLength(0);
         font.draw(batch, sbLevel.append(LEVEL).append(enemyEmitter.getLevel()), worldBounds.getRight() - TEXT_MARGIN, worldBounds.getTop() - TEXT_MARGIN, Align.right);
-
     }
 
     private void restartGame() {

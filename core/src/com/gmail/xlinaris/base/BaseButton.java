@@ -41,5 +41,4 @@ public abstract class BaseButton extends Sprite {
 
     public abstract void action();
 
-
 }

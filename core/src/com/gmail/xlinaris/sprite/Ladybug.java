@@ -54,7 +54,6 @@ public class Ladybug extends Ship {
         reloadInterval = RELOAD_INTERVAL;
     }
 
-
     @Override
     public void resize(Rect worldBounds) {
         this.worldBounds = worldBounds;
@@ -75,7 +74,6 @@ public class Ladybug extends Ship {
         this.keycode = keycode;
     }
 
-
     public void update(float delta) {
         super.update(delta);
         bulletPos.set(pos.x, pos.y + getHalfHeight());
@@ -91,10 +89,7 @@ public class Ladybug extends Ship {
         if (!this.isDestroyed()) {
             checkAndHandleBounds();
         }
-
-
     }
-
 
     private void checkAndHandleBounds() {
         moveTo();
@@ -111,7 +106,6 @@ public class Ladybug extends Ship {
             setBottom(worldBounds.getTop() - 2 * halfHeight);
         }
     }
-
 
     public void moveTo() {
 
@@ -137,21 +131,6 @@ public class Ladybug extends Ship {
                         pos.y -= velocity.y;
                     }
                     break;
-
-//                case Input.Keys.LEFT:
-//                    System.out.println("LEFT");
-//                    if ((tmpCurrentPosition.x -= velocity.x) >= worldBounds.getLeft() + halfWidth) {
-//                        pos.x -= velocity.x;
-//                    }
-//
-//                    break;
-//                case Input.Keys.RIGHT:
-//                    System.out.println("RIGHT");
-//                    if ((tmpCurrentPosition.x += velocity.x) <= worldBounds.getRight() - halfWidth) {
-//                        pos.x += velocity.x;
-//                    }
-//
-//                    break;
             }
 
 
