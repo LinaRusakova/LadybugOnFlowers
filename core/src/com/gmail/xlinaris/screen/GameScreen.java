@@ -1,5 +1,6 @@
 package com.gmail.xlinaris.screen;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -17,14 +18,17 @@ import com.gmail.xlinaris.sprite.Background;
 import com.gmail.xlinaris.sprite.Bullet;
 import com.gmail.xlinaris.sprite.EnemyShip;
 import com.gmail.xlinaris.sprite.Flower;
+import com.gmail.xlinaris.sprite.GameOverMessage;
 import com.gmail.xlinaris.sprite.Ladybug;
 import com.gmail.xlinaris.sprite.LandingFlower;
+import com.gmail.xlinaris.sprite.ReplayButton;
 import com.gmail.xlinaris.utils.EnemyEmitter;
 
 import java.util.List;
 
 
 public class GameScreen extends BaseScreen {
+    private final Game game;
     private static final int DOCKS_COUNT = 12;
     private TextureAtlas atlas;
     private TextureAtlas atlasFlowersLanding;
@@ -51,7 +55,11 @@ public class GameScreen extends BaseScreen {
 
     private TextureAtlas atlasEnemy;
 
-    public GameScreen() {
+    private ReplayButton replayButton;
+    private GameOverMessage gameOverMessage;
+
+    public GameScreen(Game game) {
+        this.game = game;
     }
 
     @Override
@@ -92,6 +100,8 @@ public class GameScreen extends BaseScreen {
         enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
         enemyEmitter = new EnemyEmitter(atlasEnemy, enemyPool, worldBounds, bulletSound);
         ladybugObject = new Ladybug(atlasLadybug, bulletPool, explosionPool, laserSound, wingFlappingSound);
+        replayButton = new ReplayButton(atlas);
+        gameOverMessage = new GameOverMessage(atlas);
 
     }
 
@@ -113,6 +123,8 @@ public class GameScreen extends BaseScreen {
         for (LandingFlower landingFlower : landingFlowers) {
             landingFlower.resize(worldBounds);
         }
+        replayButton.resize(worldBounds);
+        gameOverMessage.resize(worldBounds);
     }
 
     @Override
@@ -137,52 +149,55 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer, int button) {
-        if (ladybugObject.isDestroyed()) {
-            return false;
+        if (!ladybugObject.isDestroyed()) {
+            this.wingFlappingSound.loop();
+            ladybugObject.moveHandle(touch, true, false, 0);
         }
-        this.wingFlappingSound.loop();
-        ladybugObject.moveHandle(touch, true, false, 0);
+        replayButton.touchDown(touch, pointer, button);
         return super.touchDown(touch, pointer, button);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer, int button) {
-        if (ladybugObject.isDestroyed()) {
-            return false;
+        if (!ladybugObject.isDestroyed()) {
+            wingFlappingSound.stop();
+            ladybugObject.moveHandle(touch, false, false, 0);
         }
-        wingFlappingSound.stop();
-        ladybugObject.moveHandle(touch, false, false, 0);
+        replayButton.touchUp(touch, pointer, button);
+        if (replayButton.handle(touch, false, false, 0)) {
+            restartGame();
+        }
         return super.touchUp(touch, pointer, button);
     }
 
+
     @Override
     public boolean touchDragged(Vector2 touch, int pointer) {
-        if (ladybugObject.isDestroyed()) {
-            return false;
+        if (!ladybugObject.isDestroyed()) {
+            ladybugObject.moveHandle(touch, true, false, 0);
         }
-        ladybugObject.moveHandle(touch, true, false, 0);
         return false;
     }
 
     @Override
     public boolean keyDown(int keycode) {
-        if (ladybugObject.isDestroyed()) {
-            return false;
+        if (!ladybugObject.isDestroyed()) {
+            ladybugObject.keyDown(keycode);
+            ladybugObject.moveHandle(null, false, true, keycode);
         }
-        ladybugObject.keyDown(keycode);
-        ladybugObject.moveHandle(null, false, true, keycode);
-
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        if (ladybugObject.isDestroyed()) {
-            return false;
+        if (!ladybugObject.isDestroyed()) {
+            ladybugObject.keyUp(keycode);
+            ladybugObject.moveHandle(null, false, false, keycode);
         }
-        ladybugObject.keyUp(keycode);
-        ladybugObject.moveHandle(null, false, false, keycode);
 
+        if (replayButton.handle(null, false, false, keycode)) {
+            restartGame();
+        }
         return super.keyUp(keycode);
     }
 
@@ -243,6 +258,7 @@ public class GameScreen extends BaseScreen {
         enemyPool.freeAllDestroyedActiveSprites();
     }
 
+
     private void draw() {
         batch.begin();
         batch.setColor(1f, 1f, 1f, .1f);
@@ -260,10 +276,21 @@ public class GameScreen extends BaseScreen {
             flowerObject.draw(batch);
             batch.setColor(1f, 1f, 1f, 1f);
         } else {
+            replayButton.flushDestroy();
             audiotrack1.stop();
             wingFlappingSound.stop();
+            gameOverMessage.draw(batch);
+            replayButton.draw(batch);
         }
         explosionPool.drawActiveSprites(batch);
         batch.end();
+    }
+
+    private void restartGame() {
+        bulletPool = new BulletPool();
+        explosionPool = new ExplosionPool(atlas, explosionSound);
+        enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
+        enemyEmitter = new EnemyEmitter(atlasEnemy, enemyPool, worldBounds, bulletSound);
+        ladybugObject.resurrect(bulletPool);
     }
 }

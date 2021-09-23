@@ -14,11 +14,11 @@ public class Ladybug extends Ship {
     private boolean isTouch;
     private boolean isKeyPress;
     private int keycode;
-    private static final int HP = 10;
+    private static final int HP = 5;
     private static final float RELOAD_INTERVAL = 0.2f;
 
     private final Vector2 tmpCurrentPosition;
-    private Vector2 tmpDestinationPosition;
+    private final Vector2 tmpDestinationPosition;
 
     private Vector2 velocity;
     private int wingbeatSpeed = 0;
@@ -30,7 +30,6 @@ public class Ladybug extends Ship {
     private boolean pressedRight;
 
     private final Sound flappingSound;
-    private int shot = 0;
 
     public Ladybug(TextureAtlas ladyBugAtlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shotSound, Sound flappingSound) {
         super(ladyBugAtlas.findRegion("ladybug"), 1, 2, 2);
@@ -180,6 +179,15 @@ public class Ladybug extends Ship {
         }
     }
 
+    public void resurrect(BulletPool bulletPool) {
+        this.flushDestroy();
+        hp = HP;
+        pos.set(worldBounds.pos);
+        tmpDestinationPosition.set(pos);
+        reloadInterval = RELOAD_INTERVAL;
+        this.bulletPool = bulletPool;
+
+    }
 
     public boolean keyDown(int keycode) {
         switch (keycode) {

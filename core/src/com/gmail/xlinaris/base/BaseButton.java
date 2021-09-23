@@ -2,6 +2,7 @@ package com.gmail.xlinaris.base;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.gmail.xlinaris.sprite.Ladybug;
 
 public abstract class BaseButton extends Sprite {
 
@@ -39,4 +40,6 @@ public abstract class BaseButton extends Sprite {
     }
 
     public abstract void action();
+
+
 }
