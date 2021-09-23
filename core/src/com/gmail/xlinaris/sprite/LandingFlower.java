@@ -35,6 +35,7 @@ public class LandingFlower extends Sprite {
     public void update(float delta) {
         pos.add(new Vector2(0, -.0020f));
         checkAndHandleBounds();
+
     }
 
     private void checkAndHandleBounds() {

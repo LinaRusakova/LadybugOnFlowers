@@ -6,7 +6,7 @@ import com.gmail.xlinaris.base.BaseButton;
 import com.gmail.xlinaris.math.Rect;
 
 public class ExitButton extends BaseButton {
-    private static final float HEIGHT = 0.2f;
+    private static final float HEIGHT = 0.05f;
     private static final float PADDING = 0.03f;
 
     public ExitButton(TextureAtlas atlas) {
@@ -17,7 +17,7 @@ public class ExitButton extends BaseButton {
     public void resize(Rect worldBounds) {
         setHeightProportion(HEIGHT);
         setRight(worldBounds.getRight() - PADDING);
-        setBottom(worldBounds.getBottom() + PADDING);
+        setBottom(worldBounds.getTop() - PADDING-HEIGHT);
     }
 
     @Override

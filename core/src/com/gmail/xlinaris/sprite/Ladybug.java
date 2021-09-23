@@ -14,7 +14,7 @@ public class Ladybug extends Ship {
     private boolean isTouch;
     private boolean isKeyPress;
     private int keycode;
-    private static final int HP = 50;
+    private int HP = 50;
     private static final float RELOAD_INTERVAL = 0.2f;
 
     private final Vector2 tmpCurrentPosition;
@@ -25,6 +25,9 @@ public class Ladybug extends Ship {
     private boolean wingbeatFlag = true;
     private static final int wingbeatCount = 5;
 
+    public void addHP() {
+        this.hp++;
+    }
 
     private boolean pressedLeft;
     private boolean pressedRight;
@@ -157,7 +160,6 @@ public class Ladybug extends Ship {
             frame = 0;
             keycode = 0;
             flappingSound.stop();
-//            soundShot.stop();
 
         } else if (tmpDestinationPosition != null && isTouch) {
 
