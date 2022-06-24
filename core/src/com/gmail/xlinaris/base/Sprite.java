@@ -1,5 +1,6 @@
 package com.gmail.xlinaris.base;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -31,6 +32,8 @@ public class Sprite extends Rect {
     public Sprite(TextureRegion region, int rows, int cols, int frames) {
         this.regions = Regions.split(region, rows, cols, frames);
     }
+
+
     public void setHeightProportion(float height) {
         setHeight(height);
         float aspect = regions[frame].getRegionWidth() / (float) regions[frame].getRegionHeight();

@@ -28,7 +28,6 @@ public class LandingFlower extends Sprite {
         float posX = MathUtils.random(worldBounds.getLeft(), worldBounds.getRight());
         float posY = MathUtils.random(worldBounds.getBottom(), worldBounds.getTop());
         pos.set(posX, posY);
-
     }
 
     @Override
